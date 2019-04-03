@@ -6,6 +6,7 @@ import serve from 'koa-static'
 import bodyParser from 'koa-bodyparser'
 import { MysqlConfig } from 'config'
 import { distPath, configs } from './config'
+import UserInfo from './models/user/user-info';
 
 const app = createKoaServer({
   controllers: [`${__dirname}/controllers/**/*{.js,.ts}`],
@@ -36,5 +37,7 @@ const _ = new Sequelize({
   // true会在控制台打印每次sequelize操作时对应的SQL命令
   logging: true,
 })
+_.addModels([UserInfo]);
+_.sync();
 
 export default app

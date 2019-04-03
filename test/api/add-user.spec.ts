@@ -1,4 +1,6 @@
+// @ts-ignore
 import chai from 'chai'
+// @ts-ignore
 import chaiHttp from 'chai-http'
 import { host, port } from '../conf'
 import { Gender } from '../../src/config'

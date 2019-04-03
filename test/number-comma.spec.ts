@@ -1,3 +1,4 @@
+// @ts-ignore
 import chai from 'chai'
 import numberComma from './number-comma'
 

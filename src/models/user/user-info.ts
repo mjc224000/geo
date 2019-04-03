@@ -27,3 +27,4 @@ export default class UserInfo extends Model<UserInfo> {
   })
   gender: number
 }
+
