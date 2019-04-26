@@ -7,3 +7,10 @@ export declare type UserData = {
 export declare type UserInfo = UserData & {
   uid: number
 }
+export declare type Roles=["admin","guest"]
+export declare type Places={
+  uid:number,
+  name:string,
+  geo_coor:string,
+
+}

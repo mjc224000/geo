@@ -51,7 +51,6 @@ export default class {
     async geo(@Ctx() ctx: Context,
              @QueryParam("name") name: string,
              @QueryParam("age") age: number) {
-
         console.log(name);
         console.log(age);
         return { message: 'ojbk: '+name}

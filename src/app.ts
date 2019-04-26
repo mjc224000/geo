@@ -1,43 +1,37 @@
 import 'reflect-metadata'
-import path from 'path'
-import { createKoaServer } from 'routing-controllers'
-import { Sequelize } from 'sequelize-typescript'
+import {createKoaServer, Action} from 'routing-controllers'
+import {Context} from "koa";
 import serve from 'koa-static'
 import bodyParser from 'koa-bodyparser'
-import { MysqlConfig } from 'config'
-import { distPath, configs } from './config'
+
+import {distPath, configs} from './config'
 import UserInfo from './models/user/user-info';
+import {Places, Routines} from "./models/geo/cities";
+import {Roles} from "./types/user-info";
+import init from "./models/init";
+
 
 const app = createKoaServer({
-  controllers: [`${__dirname}/controllers/**/*{.js,.ts}`],
-})
 
+    authorizationChecker: async (action: Action, roles: Roles) => {
+        return true;
+    }, controllers: [`${__dirname}/controllers/**/*{.js,.ts}`],
+    cors: true
+})
+init().then(function () {
+
+});
+app.use(function (ctx: Context) {
+    ctx.res.writeHead(200, {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "x-requested-with,x-ui-request,lang",
+        'Access-Control-Allow-Methods': 'OPTIONS, GET, PUT, POST, DELETE',
+        'Access-Control-Allow-Credentials': "true"
+    })
+});
 app.use(serve(distPath))
 app.use(bodyParser())
 
-const mysqlConfig = configs.mysql as MysqlConfig
-
-const _ = new Sequelize({
-  host: mysqlConfig.host[0],
-  database: mysqlConfig.database,
-  username: mysqlConfig.user,
-  password: mysqlConfig.password,
-  // 或者一些其他的数据库
-  dialect: 'mysql',
-  // 加载我们的实体
-  modelPaths: [path.resolve(__dirname, `./models/${mysqlConfig.modelPath}`)],
-  pool: {
-    // 连接池的一些相关配置
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-  operatorsAliases: false,
-  // true会在控制台打印每次sequelize操作时对应的SQL命令
-  logging: true,
-})
-_.addModels([UserInfo]);
-_.sync();
+console.log(__dirname);
 
 export default app
