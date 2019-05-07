@@ -9,3 +9,8 @@ export declare type RotineData = {
     destination: number
     value: number
 }
+export declare type TreeData={
+    uid?:number,
+    name?:string,
+    fatherName?:string
+}

@@ -11,7 +11,8 @@ import {
     Body, Put, Delete,
 } from 'routing-controllers'
 import {Context} from 'koa'
-import {getTree, setFather, add, deleteNode} from "../../models/tree/tree-model";
+import {getTree, setFather, add, deleteNode, updateTree} from "../../models/tree/tree-model";
+import {TreeData} from "geo";
 
 @JsonController('/tree')
 export default class {
@@ -23,15 +24,18 @@ export default class {
     @Put('/')
     async putRouter(@Ctx()ctx: Context,
     ) {
-        let {fn, cn} = ctx.query;
-        let res = await setFather(fn, cn);
+        console.log(ctx.request.body, 'p body');
+        let data: TreeData = ctx.request.body;
+        let {name, fatherName, uid} = data;
+        let res = await updateTree({fatherName, name, uid});
 
         return res ? 'ok' : "bad"
     }
 
     @Post('/')
     async add(@Body() node: any) {
-        let res = await add(node.name);
+        console.log(node,'add node');
+        let res = await add(node);
         return 'res'
     }
 

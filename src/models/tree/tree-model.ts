@@ -1,6 +1,8 @@
 //https://echarts.baidu.com/examples/data/asset/data/flare.json
 //https://www.npmjs.com/package/sequelize-typescript#multiple-relations-of-same-models
 import {Model, Table, Column, ForeignKey, BelongsTo, HasMany, HasOne} from "sequelize-typescript"
+import {TreeData} from "geo";
+
 
 @Table({tableName: 'tree'})
 export default class TreeModel extends Model<TreeModel> {
@@ -30,19 +32,16 @@ export async function createNode(childName: string, fatherName: string) {
     await model.$add('children', childInstance);
     await childInstance.$add('children', json);
     let children = await model.$get('children', {raw: true});
-
-
     let data = await TreeModel.findAll({raw: true})
-    console.log(data);
     //  await deleteNode(childInstance.name);
     data = await TreeModel.findAll({raw: true})
-    console.log(data);
-    //  console.log(getTree());
-
 }
 
-export async function add(nodeName: string): Promise<Boolean> {
-    let [instance, created] = await TreeModel.findOrCreate({where: {name: nodeName}});
+export async function add(node: TreeData): Promise<Boolean> {
+    let [instance, created] = await TreeModel.findOrCreate({where: {name: node.name}});
+    let fatherName = node.fatherName;
+    let [fIns, fCreated] = await TreeModel.findOrCreate({where: {name: fatherName}});
+    await fIns.$add('children', instance);
     return instance ? true : false
 }
 
@@ -75,6 +74,19 @@ export async function deleteNode(nodeName: string) {
     }
     return false
 
+}
+
+export async function updateTree(treeData: TreeData):Promise<any> {
+    let {uid, name, fatherName} = treeData;
+    //找爸爸
+    let father = await TreeModel.findOne({where: {name: fatherName}, raw: true});
+    if (father) {
+        let ret = father && await TreeModel.update({name, fatherId: father.uid}, {where: {uid}});
+    } else {
+        await TreeModel.update({name}, {where: {uid}});
+    }
+
+    return []
 }
 
 export async function setFather(fatherName: string, childName: string): Promise<Boolean> {
