@@ -37,12 +37,16 @@ export async function createNode(childName: string, fatherName: string) {
     data = await TreeModel.findAll({raw: true})
 }
 
-export async function add(node: TreeData): Promise<Boolean> {
+export async function add(node: TreeData): Promise<number> {
+    if (!node.name.trim()) return -1;
     let [instance, created] = await TreeModel.findOrCreate({where: {name: node.name}});
     let fatherName = node.fatherName;
-    let [fIns, fCreated] = await TreeModel.findOrCreate({where: {name: fatherName}});
-    await fIns.$add('children', instance);
-    return instance ? true : false
+    if (fatherName) {
+        let [fIns, fCreated] = await TreeModel.findOrCreate({where: {name: fatherName}});
+        await fIns.$add('children', instance);
+    }
+    return instance && instance.uid || -1
+
 }
 
 export async function getTree(): Promise<any> {
@@ -60,14 +64,15 @@ export async function getTree(): Promise<any> {
             father.children.push(item);
         }
     })
-    console.log(root);
+
     return root;
 }
 
 export async function deleteNode(nodeName: string) {
     let instance = await TreeModel.findOne({where: {name: nodeName}});
     if (instance) {
-        let children: Array<any> = await instance.$get('children');
+        let children = await instance.$get('children');
+        //@ts-ignore
         children.length && await instance.$remove('children', children);
         await TreeModel.destroy({where: {name: nodeName}});
         return true
@@ -76,7 +81,7 @@ export async function deleteNode(nodeName: string) {
 
 }
 
-export async function updateTree(treeData: TreeData):Promise<any> {
+export async function updateTree(treeData: TreeData): Promise<any> {
     let {uid, name, fatherName} = treeData;
     //找爸爸
     let father = await TreeModel.findOne({where: {name: fatherName}, raw: true});

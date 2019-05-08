@@ -28,15 +28,14 @@ export default class {
         let data: TreeData = ctx.request.body;
         let {name, fatherName, uid} = data;
         let res = await updateTree({fatherName, name, uid});
-
         return res ? 'ok' : "bad"
     }
 
     @Post('/')
     async add(@Body() node: any) {
-        console.log(node,'add node');
+        console.log(node, 'add node');
         let res = await add(node);
-        return 'res'
+        return res
     }
 
     @Delete('/')
